@@ -1,0 +1,39 @@
+A followup to https://groups.google.com/forum/#!topic/native-client-discuss/zBJ_iFQJrzE:
+
+Passing my image data from JS to my NaCl module this way worked great, so thanks again. Now a new issue:
+
+I'd like to convert this buffer array to an OpenCV Mat type. 
+
+Currently the image data looks like this: 
+
+    pp::VarArrayBuffer array_buffer(dictionary.Get("data"));
+
+In the example, that's cast to uint32_t
+
+    uint32_t* pixels = static_cast<uint32_t*>(array_buffer.Map());
+
+
+Now I need to figure out a way to read that into OpenCV's Mat type for processing. Any suggestions? 
+Click here to Reply
+
+
+
+Adam Pash 	
+17/12/2013
+
+
+An update: I *think* I've figured this one out. This code appears to be doing the trick for me:
+
+              uint32_t* pixels = static_cast<uint32_t*>(array_buffer.Map());
+              cv::Mat img(cv::Size(width, height), CV_8UC4);
+              memcpy(img.ptr(), (void*) pixels, height * width * 4);
+              array_buffer.Unmap();
+
+Ideally I'll try writing this file to disk at some point so I can verify, but I've been able to manipulate the Mat inside my code without it crashing, which feels like a good sign.
+- show quoted text -
+
+
+http://docs.opencv.org/modules/core/doc/basic_structures.html
+http://www.ceemple.com/applications/computer-vision/
+http://www.cplusplus.com/doc/tutorial/typecasting/
+
